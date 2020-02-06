@@ -49,16 +49,16 @@ public class KafkaReskillLabOneApplication implements CommandLineRunner {
 			}
 			reader.close();
 		} catch (IOException e) {
-			logger.error(e.getMessage(),e);
+			logger.error(e.getMessage());
 		}
 		producer.flush();
 		producer.close(); 
 		System.out.println(topicMap);
 
-//		Consumer<Long, CustomObject> consumer = ConsumerCreator.createConsumer();
-//		topicMap.forEach((k, v) -> reciveDataByCountry("UNITED_KINGDOM", consumer));
-//		consumer.commitAsync();
-//		consumer.close();
+		Consumer<Long, CustomObject> consumer = ConsumerCreator.createConsumer();
+		topicMap.forEach((k, v) -> reciveDataByCountry("UNITED_KINGDOM", consumer));
+		consumer.commitAsync();
+		consumer.close();
 	}
 
 	public static void sendData(String[] str, Producer<Long, CustomObject> producer) {
