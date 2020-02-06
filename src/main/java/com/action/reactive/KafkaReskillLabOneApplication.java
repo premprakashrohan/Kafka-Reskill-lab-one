@@ -1,13 +1,11 @@
 package com.action.reactive;
 
-import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -51,16 +49,16 @@ public class KafkaReskillLabOneApplication implements CommandLineRunner {
 			}
 			reader.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(),e);
 		}
 		producer.flush();
 		producer.close(); 
 		System.out.println(topicMap);
 
-		Consumer<Long, CustomObject> consumer = ConsumerCreator.createConsumer();
-		topicMap.forEach((k, v) -> reciveDataByCountry("UNITED_KINGDOM", consumer));
-		consumer.commitAsync();
-		consumer.close();
+//		Consumer<Long, CustomObject> consumer = ConsumerCreator.createConsumer();
+//		topicMap.forEach((k, v) -> reciveDataByCountry("UNITED_KINGDOM", consumer));
+//		consumer.commitAsync();
+//		consumer.close();
 	}
 
 	public static void sendData(String[] str, Producer<Long, CustomObject> producer) {
