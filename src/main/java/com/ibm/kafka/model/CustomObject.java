@@ -1,5 +1,6 @@
 package com.ibm.kafka.model;
 
+import java.beans.Transient;
 import java.io.Serializable;
 
 public class CustomObject implements Serializable {
@@ -105,7 +106,7 @@ public class CustomObject implements Serializable {
 	public void setCountryName(String countryName) {
 		this.countryName = countryName;
 	}
-
+	@Transient
 	public String getCountrySpecificTopic() {
 		if (getCountryName() == null || getCountryName().isEmpty()) {
 			return "DEFAULT_TOPIC";

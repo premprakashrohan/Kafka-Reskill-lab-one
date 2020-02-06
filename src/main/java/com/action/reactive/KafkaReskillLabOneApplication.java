@@ -4,8 +4,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -29,7 +30,20 @@ import com.opencsv.CSVReader;
 public class KafkaReskillLabOneApplication implements CommandLineRunner {
 
 	private static Logger logger = LoggerFactory.getLogger(KafkaReskillLabOneApplication.class);
-	static Map<String, String> topicMap = new HashMap<>();
+	static Map<String, String> topicMap = Stream.of(new Object[][] { { "Singapore", "SINGAPORE" },
+			{ "Cyprus", "CYPRUS" }, { "Hong Kong", "HONG_KONG" }, { "Portugal", "PORTUGAL" }, { "Iceland", "ICELAND" },
+			{ "Malta", "MALTA" }, { "Greece", "GREECE" }, { "Saudi Arabia", "SAUDI_ARABIA" },
+			{ "Netherlands", "NETHERLANDS" }, { "Sweden", "SWEDEN" }, { "Austria", "AUSTRIA" }, { "Poland", "POLAND" },
+			{ "Brazil", "BRAZIL" }, { "France", "FRANCE" }, { "Lithuania", "LITHUANIA" }, { "RSA", "RSA" },
+			{ "USA", "USA" }, { "Japan", "JAPAN" }, { "Channel Islands", "CHANNEL_ISLANDS" },
+			{ "European Community", "EUROPEAN_COMMUNITY" }, { "United Kingdom", "UNITED_KINGDOM" },
+			{ "United Arab Emirates", "UNITED_ARAB_EMIRATES" }, { "Unspecified", "UNSPECIFIED" },
+			{ "Switzerland", "SWITZERLAND" }, { "Bahrain", "BAHRAIN" }, { "Spain", "SPAIN" }, { "Lebanon", "LEBANON" },
+			{ "Canada", "CANADA" }, { "Czech Republic", "CZECH_REPUBLIC" }, { "Belgium", "BELGIUM" },
+			{ "Norway", "NORWAY" }, { "EIRE", "EIRE" }, { "Finland", "FINLAND" }, { "Denmark", "DENMARK" },
+			{ "Italy", "ITALY" }, { "Israel", "ISRAEL" }, { "Australia", "AUSTRALIA" }, { "Germany", "GERMANY" },
+
+	}).collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
 	public static void main(String[] args) {
 		SpringApplication.run(KafkaReskillLabOneApplication.class, args);
@@ -38,7 +52,7 @@ public class KafkaReskillLabOneApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) {
 
-	 	Producer<Long, CustomObject> producer = ProducerCreator.createProducer();
+		Producer<Long, CustomObject> producer = ProducerCreator.createProducer();
 		CSVReader reader = null;
 		try {
 			reader = new CSVReader(new FileReader(IKafkaConstants.FILE_LOCATION));
@@ -52,13 +66,15 @@ public class KafkaReskillLabOneApplication implements CommandLineRunner {
 			logger.error(e.getMessage());
 		}
 		producer.flush();
-		producer.close(); 
+		producer.close();
 		System.out.println(topicMap);
 
 		Consumer<Long, CustomObject> consumer = ConsumerCreator.createConsumer();
-		topicMap.forEach((k, v) -> reciveDataByCountry("UNITED_KINGDOM", consumer));
-		consumer.commitAsync();
-		consumer.close();
+		topicMap.forEach((k, v) -> {
+			reciveDataByTopic(v, consumer);
+		});
+		// consumer.commitAsync();
+		// consumer.close();
 	}
 
 	public static void sendData(String[] str, Producer<Long, CustomObject> producer) {
@@ -70,7 +86,6 @@ public class KafkaReskillLabOneApplication implements CommandLineRunner {
 			logger.error(Arrays.deepToString(str), e);
 		}
 		if (c != null) {
-			topicMap.put(c.getCountryName(), c.getCountrySpecificTopic());
 
 			final ProducerRecord<Long, CustomObject> record = new ProducerRecord<Long, CustomObject>(
 					c.getCountrySpecificTopic(), c);
@@ -90,7 +105,7 @@ public class KafkaReskillLabOneApplication implements CommandLineRunner {
 		}
 	}
 
-	public static void reciveDataByCountry(final String TOPIC_NAME, Consumer<Long, CustomObject> consumer) {
+	public static void reciveDataByTopic(final String TOPIC_NAME, Consumer<Long, CustomObject> consumer) {
 
 		consumer.subscribe(Collections.singletonList(TOPIC_NAME));
 		final ConsumerRecords<Long, CustomObject> consumerRecords = consumer.poll(1000);
